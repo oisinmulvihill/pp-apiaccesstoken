@@ -68,22 +68,35 @@ class ValidateAccessToken(object):
 
         try:
             access_secret = self.recover_secret(access_token)
-
-            self.log.debug(
-                "access_secret for access_token:{} recovered OK.".format(
-                    access_token
+            if access_secret:
+                self.log.debug(
+                    "access_secret for access_token:{} recovered OK.".format(
+                        access_token
+                    )
                 )
-            )
-            man = Manager(access_secret)
-            payload = man.verify_access_token(access_token)
+                man = Manager(access_secret)
+                payload = man.verify_access_token(access_token)
 
-            self.log.debug(
-                "Payload recovered  for '{}'. Looking for identity.".format(
-                    access_token
+                self.log.debug(
+                    "Payload recovered for '{}'. Looking for identity.".format(
+                        access_token
+                    )
                 )
-            )
 
-            identity = payload['identity']
+                identity = payload['identity']
+                self.log.debug(
+                    "Token Valid. Adding identity '{}' environ.".format(
+                        identity
+                    )
+                )
+                environ[self.ENV_KEY] = identity
+
+            else:
+                self.log.debug(
+                    "No secret recovered for '{}'. Ignoring token.".format(
+                        access_token
+                    )
+                )
 
         except AccessTokenInvalid, e:
             self.log.error(
@@ -94,12 +107,6 @@ class ValidateAccessToken(object):
             self.log.exception(
                 "General error validating token: '{}'".format(e)
             )
-
-        else:
-            self.log.debug(
-                "Token Valid. Adding identity '{}' environ.".format(identity)
-            )
-            environ[self.ENV_KEY] = identity
 
     def __call__(self, environ, start_response):
         """Wsgi hook into kicking off the token validation and identity
