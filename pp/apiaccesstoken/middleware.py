@@ -43,7 +43,7 @@ class ValidateAccessToken(object):
     ENV_KEY = 'pp.api_access.identity'
 
     # The wsgi environment variable to look for, for api access tokens:
-    HTTP_HEADER = "HTTP_X_API_ACCESS_TOKEN"
+    ACCESS_TOKEN_HEADER = "HTTP_ACCESS_TOKEN"
 
     def __init__(
         self, application, recover_secret=recover_secret
@@ -60,16 +60,16 @@ class ValidateAccessToken(object):
         access_secret to recover it.
 
         """
-        self.log.debug(
-            "recovering the access_secret for access_token:{}".format(
-                access_token
-            )
-        )
+        log = get_log('ValidateAccessToken.recover_access')
+
+        log.debug("recovering the access_secret for access_token:{}".format(
+            access_token
+        ))
 
         try:
             access_secret = self.recover_secret(access_token)
             if access_secret:
-                self.log.debug(
+                log.debug(
                     "access_secret for access_token:{} recovered OK.".format(
                         access_token
                     )
@@ -77,7 +77,7 @@ class ValidateAccessToken(object):
                 man = Manager(access_secret)
                 payload = man.verify_access_token(access_token)
 
-                self.log.debug(
+                log.debug(
                     "Payload recovered for '{}'. Looking for identity.".format(
                         access_token
                     )
@@ -113,8 +113,8 @@ class ValidateAccessToken(object):
         recovery.
 
         """
-        if "HTTP_X_API_ACCESS_TOKEN" in environ:
-            access_token = environ["HTTP_X_API_ACCESS_TOKEN"]
+        access_token = environ.get(self.ACCESS_TOKEN_HEADER)
+        if access_token:
             self.recover_access(environ, access_token)
 
         return self.application(environ, start_response)
