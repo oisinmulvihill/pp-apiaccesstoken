@@ -4,6 +4,7 @@
 import logging
 
 from pp.apiaccesstoken.tokenmanager import Manager
+from pp.apiaccesstoken.headers import ACCESS_TOKEN_HEADER
 from pp.apiaccesstoken.tokenmanager import AccessTokenInvalid
 
 
@@ -41,9 +42,6 @@ class ValidateAccessToken(object):
     """
     # The wsgi environment variable to set when an identity was found:
     ENV_KEY = 'pp.api_access.identity'
-
-    # The wsgi environment variable to look for, for api access tokens:
-    ACCESS_TOKEN_HEADER = "HTTP_ACCESS_TOKEN"
 
     def __init__(
         self, application, recover_secret=recover_secret
@@ -113,7 +111,7 @@ class ValidateAccessToken(object):
         recovery.
 
         """
-        access_token = environ.get(self.ACCESS_TOKEN_HEADER)
+        access_token = environ.get(ACCESS_TOKEN_HEADER)
         if access_token:
             self.recover_access(environ, access_token)
 

@@ -5,6 +5,8 @@ import logging
 
 import requests
 
+from pp.apiaccesstoken.headers import ACCESS_TOKEN_HEADER
+
 
 def get_log(e=None):
     return logging.getLogger("{0}.{1}".format(__name__, e) if e else __name__)
@@ -17,13 +19,11 @@ class RequestsAccessTokenAuth(requests.auth.AuthBase):
     servers.
 
     """
-    HEADER_FIELD = 'X-API-ACCESS-TOKEN'
-
     def __init__(self, access_token):
         self.log = get_log('AccessTokenAuth')
         self.access_token = access_token
 
     def __call__(self, r):
         self.log.debug("Adding access token to request header.")
-        r.headers['X-API-ACCESS-TOKEN'] = self.access_token
+        r.headers[ACCESS_TOKEN_HEADER.lstrip('HTTP')] = self.access_token
         return r
