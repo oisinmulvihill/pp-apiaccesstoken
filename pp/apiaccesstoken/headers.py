@@ -7,5 +7,10 @@ Oisin Mulvihill
 
 """
 
-# The wsgi environment variable to look for, for api access tokens:
-ACCESS_TOKEN_HEADER = "HTTP_ACCESS_TOKEN"
+# The exact header to set via CURL or HTTPie:
+ACCESS_TOKEN_HEADER = "ACCESS-TOKEN"
+
+# How the header will show up in the Wsgi environment dict:
+WSGI_ENV_ACCESS_TOKEN_HEADER = "HTTP_{}".format(
+    ACCESS_TOKEN_HEADER.replace('-', '_')
+)

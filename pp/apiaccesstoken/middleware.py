@@ -4,8 +4,8 @@
 import logging
 
 from pp.apiaccesstoken.tokenmanager import Manager
-from pp.apiaccesstoken.headers import ACCESS_TOKEN_HEADER
 from pp.apiaccesstoken.tokenmanager import AccessTokenInvalid
+from pp.apiaccesstoken.headers import WSGI_ENV_ACCESS_TOKEN_HEADER
 
 
 def get_log(e=None):
@@ -111,7 +111,7 @@ class ValidateAccessToken(object):
         recovery.
 
         """
-        access_token = environ.get(ACCESS_TOKEN_HEADER)
+        access_token = environ.get(WSGI_ENV_ACCESS_TOKEN_HEADER)
         if access_token:
             self.recover_access(environ, access_token)
 

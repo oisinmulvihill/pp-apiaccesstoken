@@ -25,5 +25,5 @@ class RequestsAccessTokenAuth(requests.auth.AuthBase):
 
     def __call__(self, r):
         self.log.debug("Adding access token to request header.")
-        r.headers[ACCESS_TOKEN_HEADER.lstrip('HTTP')] = self.access_token
+        r.headers[ACCESS_TOKEN_HEADER] = self.access_token
         return r
