@@ -8,7 +8,7 @@ Oisin Mulvihill
 """
 
 # The exact header to set via CURL or HTTPie:
-ACCESS_TOKEN_HEADER = "ACCESS-TOKEN"
+ACCESS_TOKEN_HEADER = "X-ACCESS-TOKEN"
 
 # How the header will show up in the Wsgi environment dict:
 WSGI_ENV_ACCESS_TOKEN_HEADER = "HTTP_{}".format(

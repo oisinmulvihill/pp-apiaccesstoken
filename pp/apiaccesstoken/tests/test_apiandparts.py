@@ -4,6 +4,8 @@
 import pytest
 
 from pp.apiaccesstoken import tokenmanager
+from pp.apiaccesstoken.headers import ACCESS_TOKEN_HEADER
+from pp.apiaccesstoken.headers import WSGI_ENV_ACCESS_TOKEN_HEADER
 from pp.apiaccesstoken.middleware import ValidateAccessToken
 
 
@@ -42,7 +44,6 @@ def test_ValidateAccessToken():
     vat = ValidateAccessToken(app, recover_secret=fsr.recover_secret)
 
     assert vat.ENV_KEY == 'pp.api_access.identity'
-    assert vat.HTTP_HEADER == "HTTP_X_API_ACCESS_TOKEN"
 
     environ = {}
     start_response = lambda x: x
@@ -57,7 +58,7 @@ def test_ValidateAccessToken():
 
     # Now provide and access token which is valid:
     #
-    environ[ValidateAccessToken.HTTP_HEADER] = access_token
+    environ[WSGI_ENV_ACCESS_TOKEN_HEADER] = access_token
     vat(environ, start_response)
 
     # Now the identity should have been recovered and set in the env:
@@ -93,7 +94,7 @@ def test_ValidateAccessToken_invalid_secet():
     assert ValidateAccessToken.ENV_KEY not in environ
 
     # Now provide the access token:
-    environ[ValidateAccessToken.HTTP_HEADER] = access_token
+    environ[WSGI_ENV_ACCESS_TOKEN_HEADER] = access_token
     vat(environ, start_response)
 
     # The identity should not be in the environment as the payload won't
