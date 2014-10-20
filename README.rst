@@ -20,6 +20,6 @@ Run all tests
 
 From here you can do::
 
-    python runtests.py -s
+    py.test -s
 
 
