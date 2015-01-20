@@ -113,6 +113,9 @@ class ValidateAccessToken(object):
         """
         access_token = environ.get(WSGI_ENV_ACCESS_TOKEN_HEADER)
         if access_token:
+            # String out the "Token " from the "Token <token key>" from the
+            # HTTP_AUTHORIZATION string.
+            access_token = access_token.lstrip('Token').strip()
             self.recover_access(environ, access_token)
 
         return self.application(environ, start_response)

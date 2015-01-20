@@ -13,10 +13,12 @@ def get_log(e=None):
 
 
 class RequestsAccessTokenAuth(requests.auth.AuthBase):
-    """Handles the setting of X-API-ACCESS-TOKEN in the request header.
+    """Handles the setting of HTTP_AUTHORIZATION in the request header.
 
     This can be passed to the requests auth field for use against our
     servers.
+
+    HTTP_AUTHORIZATION: Token <token data>
 
     """
     def __init__(self, access_token):
@@ -25,5 +27,5 @@ class RequestsAccessTokenAuth(requests.auth.AuthBase):
 
     def __call__(self, r):
         self.log.debug("Adding access token to request header.")
-        r.headers[ACCESS_TOKEN_HEADER] = self.access_token
+        r.headers[ACCESS_TOKEN_HEADER] = "Token {}".format(self.access_token)
         return r
