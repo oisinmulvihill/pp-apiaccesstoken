@@ -8,7 +8,7 @@ Oisin Mulvihill
 """
 
 # The exact header to set via CURL or HTTPie:
-ACCESS_TOKEN_HEADER = "HTTP_AUTHORIZATION"
+ACCESS_TOKEN_HEADER = "AUTHORIZATION"
 
 # How the header will show up in the Wsgi environment dict:
-WSGI_ENV_ACCESS_TOKEN_HEADER = ACCESS_TOKEN_HEADER
+WSGI_ENV_ACCESS_TOKEN_HEADER = "HTTP_AUTHORIZATION"
