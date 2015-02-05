@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 """
 """
-
 from pp.apiaccesstoken.headers import ACCESS_TOKEN_HEADER
+from pp.apiaccesstoken.headers import WSGI_ENV_ACCESS_TOKEN_HEADER
 from pp.apiaccesstoken.restclientside import RequestsAccessTokenAuth
 
 
@@ -17,7 +17,7 @@ def test_usage_of_RequestsAccessTokenAuth():
 
     access_token = "a fake access token"
 
-    assert ACCESS_TOKEN_HEADER == 'X-ACCESS-TOKEN'
+    assert ACCESS_TOKEN_HEADER == 'AUTHORIZATION'
 
     rata = RequestsAccessTokenAuth(access_token)
 
@@ -28,4 +28,4 @@ def test_usage_of_RequestsAccessTokenAuth():
     assert ACCESS_TOKEN_HEADER in req.headers
 
     v = req.headers[ACCESS_TOKEN_HEADER]
-    assert v == access_token
+    assert v == "Token {}".format(access_token)

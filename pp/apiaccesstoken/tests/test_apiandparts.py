@@ -4,7 +4,6 @@
 import pytest
 
 from pp.apiaccesstoken import tokenmanager
-from pp.apiaccesstoken.headers import ACCESS_TOKEN_HEADER
 from pp.apiaccesstoken.headers import WSGI_ENV_ACCESS_TOKEN_HEADER
 from pp.apiaccesstoken.middleware import ValidateAccessToken
 
@@ -24,7 +23,9 @@ class FakeSecretRecover(object):
         self.access_token_given = None
 
     def recover_secret(self, access_token):
+        print "HERE"
         self.access_token_given = access_token
+        print "self.access_token_given: ", self.access_token_given
         return self.access_secret
 
 
@@ -68,15 +69,11 @@ def test_ValidateAccessToken():
     assert environ[ValidateAccessToken.ENV_KEY] == username
 
 
-def test_ValidateAccessToken_invalid_secet():
-    """Test the middleware ValidateAccessToken usage.
+def test_ValidateAccessToken_empty_env():
+    """Test nothing is found in an empty environment.
     """
-    username = 'fran'
-    access_secret = tokenmanager.Manager.generate_secret()
-    man = tokenmanager.Manager(access_secret)
     environ = {}
     start_response = lambda x: x
-    access_token = man.generate_access_token(identity=username)
 
     fsr = FakeSecretRecover("the wrong secret")
     assert fsr.access_secret == "the wrong secret"
@@ -93,9 +90,55 @@ def test_ValidateAccessToken_invalid_secet():
     assert fsr.access_token_given is None
     assert ValidateAccessToken.ENV_KEY not in environ
 
+
+def test_header_token_extract_re_matching():
+    """Test the middleware ValidateAccessToken usage.
+    """
+    username = 'fran'
+    access_secret = tokenmanager.Manager.generate_secret()
+    access_token = tokenmanager.Manager(
+        access_secret
+    ).generate_access_token(
+        identity=username
+    )
+    app = MockApp()
+    vat = ValidateAccessToken(app, recover_secret=lambda x: x)
+
+    # Test out the extract token on different Header value types:
+    #
+    found = vat.token_extract("Token {}".format(access_token))
+    assert found == access_token
+
+    found = vat.token_extract("{}".format(access_token))
+    assert found == access_token
+
+    found = vat.token_extract("")
+    assert found == ""
+
+
+def test_ValidateAccessToken_invalid_secret():
+    """Test the middleware ValidateAccessToken usage.
+    """
+    username = 'fran'
+    access_secret = tokenmanager.Manager.generate_secret()
+    man = tokenmanager.Manager(access_secret)
+    start_response = lambda x: x
+    access_token = man.generate_access_token(identity=username)
+    environ = {
+        WSGI_ENV_ACCESS_TOKEN_HEADER: access_token
+    }
+    fsr = FakeSecretRecover("the wrong secret")
+    assert fsr.access_secret == "the wrong secret"
+    assert fsr.access_token_given is None
+
     # Now provide the access token:
-    environ[WSGI_ENV_ACCESS_TOKEN_HEADER] = access_token
-    vat(environ, start_response)
+    app = MockApp()
+
+    ValidateAccessToken(
+        app, recover_secret=fsr.recover_secret
+    )(
+        environ, start_response
+    )
 
     # The identity should not be in the environment as the payload won't
     # have been recovered, the secret should not have been able to decode

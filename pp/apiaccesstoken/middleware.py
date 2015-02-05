@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 """
 """
+import re
 import logging
 
 from pp.apiaccesstoken.tokenmanager import Manager
@@ -21,6 +22,9 @@ def recover_secret(access_token):
 
     """
     raise NotImplementedError('No Valid Access Detail Recovery Provided')
+
+
+WITHTOKEN_RE = re.compile("(Token\s*)(.*)")
 
 
 class ValidateAccessToken(object):
@@ -106,6 +110,23 @@ class ValidateAccessToken(object):
                 "General error validating token: '{}'".format(e)
             )
 
+    def token_extract(self, header_value):
+        """Handle 'Token <data>' or '<data>' values in the auth header content.
+
+        :returns: the <data> bit of the header_value.
+
+        """
+        access_token = ""
+
+        with_token = re.match(WITHTOKEN_RE, header_value)
+        if with_token:
+            access_token = with_token.groups()[1]
+
+        else:
+            access_token = header_value.strip()
+
+        return access_token
+
     def __call__(self, environ, start_response):
         """Wsgi hook into kicking off the token validation and identity
         recovery.
@@ -115,7 +136,7 @@ class ValidateAccessToken(object):
         if access_token:
             # String out the "Token " from the "Token <token key>" from the
             # HTTP_AUTHORIZATION string.
-            access_token = access_token.lstrip('Token').strip()
+            access_token = self.token_extract(access_token)
             self.recover_access(environ, access_token)
 
         return self.application(environ, start_response)

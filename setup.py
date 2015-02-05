@@ -6,7 +6,7 @@ from setuptools import setup, find_packages
 
 Name = "pp-apiaccesstoken"
 ProjectUrl = ""
-Version = "1.0.1"
+Version = "1.1.0"
 Author = 'Oisin Mulvihill'
 AuthorEmail = 'oisin mulvihill at gmail'
 Maintainer = ''
