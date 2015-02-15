@@ -132,7 +132,14 @@ class ValidateAccessToken(object):
         recovery.
 
         """
+        log = get_log("ValidateAccessToken")
+
         access_token = environ.get(WSGI_ENV_ACCESS_TOKEN_HEADER)
+        if not access_token:
+            access_token = environ.get("HTTP_AUTHORIZATION")
+
+        log.debug("environ: {}".format(environ.items()))
+
         if access_token:
             # String out the "Token " from the "Token <token key>" from the
             # HTTP_AUTHORIZATION string.
