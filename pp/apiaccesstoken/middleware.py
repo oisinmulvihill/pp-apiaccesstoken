@@ -64,49 +64,50 @@ class ValidateAccessToken(object):
         """
         log = get_log('ValidateAccessToken.recover_access')
 
-        log.debug("recovering the access_secret for access_token:{}".format(
-            access_token
-        ))
-
+        # log.debug("recovering the access_secret for access_token:{}".format(
+        #     access_token
+        # ))
         try:
             access_secret = self.recover_secret(access_token)
             if access_secret:
-                log.debug(
-                    "access_secret for access_token:{} recovered OK.".format(
-                        access_token
-                    )
-                )
+                # log.debug(
+                #     "access_secret for access_token:{} recovered OK.".format(
+                #         access_token
+                #     )
+                # )
                 man = Manager(access_secret)
                 payload = man.verify_access_token(access_token)
-
-                log.debug(
-                    "Payload recovered for '{}'. Looking for identity.".format(
-                        access_token
-                    )
-                )
+                # log.debug(
+                #     "Payload recovered '{}'. Looking for identity.".format(
+                #         access_token
+                #     )
+                # )
 
                 identity = payload['identity']
-                self.log.debug(
-                    "Token Valid. Adding identity '{}' environ.".format(
-                        identity
-                    )
-                )
+                # self.log.debug(
+                #     "Token Valid. Adding identity '{}' environ.".format(
+                #         identity
+                #     )
+                # )
                 environ[self.ENV_KEY] = identity
 
             else:
-                self.log.debug(
-                    "No secret recovered for '{}'. Ignoring token.".format(
+                self.log.info(
+                    (
+                        "No secret recovered for access_token '{}'. "
+                        "Ignoring token."
+                    ).format(
                         access_token
                     )
                 )
 
         except AccessTokenInvalid, e:
-            self.log.error(
+            log.error(
                 "token validation fail: '{}'".format(e)
             )
 
         except Exception, e:
-            self.log.exception(
+            log.exception(
                 "General error validating token: '{}'".format(e)
             )
 
@@ -138,12 +139,19 @@ class ValidateAccessToken(object):
         if not access_token:
             access_token = environ.get("HTTP_AUTHORIZATION")
 
-        log.debug("environ: {}".format(environ.items()))
+        log.debug("PATH_INFO: '{}'".format(environ.get("PATH_INFO")))
 
         if access_token:
             # String out the "Token " from the "Token <token key>" from the
             # HTTP_AUTHORIZATION string.
             access_token = self.token_extract(access_token)
             self.recover_access(environ, access_token)
+
+        else:
+            log.debug(
+                "AUTHORIZATION not found in environ: {}".format(
+                    environ.items()
+                )
+            )
 
         return self.application(environ, start_response)
