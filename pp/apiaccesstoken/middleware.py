@@ -133,13 +133,13 @@ class ValidateAccessToken(object):
         recovery.
 
         """
-        log = get_log("ValidateAccessToken")
+        # log = get_log("ValidateAccessToken")
 
         access_token = environ.get(WSGI_ENV_ACCESS_TOKEN_HEADER)
         if not access_token:
             access_token = environ.get("HTTP_AUTHORIZATION")
 
-        log.debug("PATH_INFO: '{}'".format(environ.get("PATH_INFO")))
+        # log.debug("PATH_INFO: '{}'".format(environ.get("PATH_INFO")))
 
         if access_token:
             # String out the "Token " from the "Token <token key>" from the
@@ -147,11 +147,11 @@ class ValidateAccessToken(object):
             access_token = self.token_extract(access_token)
             self.recover_access(environ, access_token)
 
-        else:
-            log.debug(
-                "AUTHORIZATION not found in environ: {}".format(
-                    environ.items()
-                )
-            )
+        # else:
+        #     log.debug(
+        #         "AUTHORIZATION not found in environ: {}".format(
+        #             environ.items()
+        #         )
+        #     )
 
         return self.application(environ, start_response)
